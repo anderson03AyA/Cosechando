@@ -35,15 +35,6 @@ const MY_CUSTOM_ADS: Ad[] = [
   },
   {
     id: "2",
-    title: "Contactar Directo",
-    description: "Agenda tu cita con un solo click",
-    icon: "✨",
-    bgColor: "#ff69b4",
-    // 2. Optimizamos a formato API para máxima compatibilidad con el intent de Android 👇
-    link: "https://wa.me/573138428637",
-  },
-  {
-    id: "3",
     title: "Quieres tu App o web? ",
     description: "Diseñamos paginas web y apps para tu negocio",
     icon: "📊",
@@ -51,6 +42,16 @@ const MY_CUSTOM_ADS: Ad[] = [
     // 2. Corregido el número de teléfono con formato API seguro 👇
     link: "https://wa.me/573125023912",
   },
+  /*{
+    id: "3",
+    title: "Contactar Directo",
+    description: "Agenda tu cita con un solo click",
+    icon: "✨",
+    bgColor: "#ff69b4",
+    // 2. Optimizamos a formato API para máxima compatibilidad con el intent de Android 👇
+    link: "https://wa.me/573138428637",
+  },*/
+  
 ];
 
 interface AdBannerProps {
