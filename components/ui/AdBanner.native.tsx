@@ -73,15 +73,13 @@ export function AdBanner({ onAdPress: _onAdPress }: AdBannerProps) {
   // Estados para tus anuncios rotativos
   const [adIndex, setAdIndex] = React.useState(0);
 
-  // Efecto para cambiar tus anuncios cada 5 segundos (Solo en Expo Go o No-Android)
+  // Efecto para cambiar tus anuncios cada 5 segundos (Siempre activo como fallback)
   React.useEffect(() => {
-    if (isExpoGo || !isAndroid) {
-      const interval = setInterval(() => {
-        setAdIndex((prev) => (prev + 1) % MY_CUSTOM_ADS.length);
-      }, 5000);
-      return () => clearInterval(interval);
-    }
-  }, [isAndroid, isExpoGo]);
+    const interval = setInterval(() => {
+      setAdIndex((prev) => (prev + 1) % MY_CUSTOM_ADS.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Efecto original de AdMob para el APK instalado
   React.useEffect(() => {
