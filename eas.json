@@ -42,7 +42,7 @@
         "EXPO_PUBLIC_UPDATE_CONFIG_URL": "https://api.jsonbin.io/v3/b/6a4dc882da38895dfe3e3518"
       },
       "android": {
-        "buildType": "apk"
+        "buildType": "app-bundle"
       }
     }
   }

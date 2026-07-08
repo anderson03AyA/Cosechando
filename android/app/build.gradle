@@ -110,8 +110,7 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // EAS will configure signing during remote build
-            signingConfig signingConfigs.debug
+            // EAS will inject signing config - do not reference any signingConfig here
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'true'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds
