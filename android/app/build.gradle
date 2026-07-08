@@ -81,22 +81,6 @@ def enableMinifyInReleaseBuilds = (findProperty('android.enableMinifyInReleaseBu
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
-def keystorePropertiesFile = rootProject.file('keystore.properties')
-def keystoreProperties = new Properties()
-
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
-def releaseStoreFile = System.getenv('ANDROID_KEYSTORE_FILE')
-    ?: keystoreProperties.getProperty('storeFile')
-def releaseStorePassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
-    ?: keystoreProperties.getProperty('storePassword')
-def releaseKeyAlias = System.getenv('ANDROID_KEY_ALIAS')
-    ?: keystoreProperties.getProperty('keyAlias')
-def releaseKeyPassword = System.getenv('ANDROID_KEY_PASSWORD')
-    ?: keystoreProperties.getProperty('keyPassword')
-
 android {
     ndkVersion rootProject.ext.ndkVersion
 
@@ -120,23 +104,13 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        release {
-            if (releaseStoreFile && releaseStorePassword && releaseKeyAlias && releaseKeyPassword) {
-                storeFile file(releaseStoreFile)
-                storePassword releaseStorePassword
-                keyAlias releaseKeyAlias
-                keyPassword releaseKeyPassword
-            } else {
-                signingConfig signingConfigs.debug
-            }
-        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'true'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds
