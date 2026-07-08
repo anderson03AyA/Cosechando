@@ -104,20 +104,13 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        release {
-            if (releaseStoreFile && releaseStorePassword && releaseKeyAlias && releaseKeyPassword) {
-                storeFile file(releaseStoreFile)
-                storePassword releaseStorePassword
-                keyAlias releaseKeyAlias
-                keyPassword releaseKeyPassword
-            }
-        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
+            // EAS will configure signing during remote build
             signingConfig signingConfigs.debug
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'true'
             shrinkResources enableShrinkResources.toBoolean()
