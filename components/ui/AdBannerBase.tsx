@@ -1,15 +1,15 @@
 import React from "react";
 import {
-  Linking,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
+    Linking,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import {
-  fetchRemoteUpdateConfig,
-  type RemoteAdConfig,
+    fetchRemoteUpdateConfig,
+    type RemoteAdConfig,
 } from "../../lib/app-update";
 
 function logRemoteAds(message: string, payload: unknown) {
@@ -42,18 +42,8 @@ const DEFAULT_ADS: Ad[] = [
     description: "Diseñamos paginas web y apps para tu negocio",
     icon: "📊",
     bgColor: "#2563eb",
-    // 2. Corregido el número de teléfono con formato API seguro 👇
     link: "https://wa.me/573125023912",
   },
-  /*{
-    id: "3",
-    title: "Contactar Directo",
-    description: "Agenda tu cita con un solo click",
-    icon: "✨",
-    bgColor: "#ff69b4",
-    // 2. Optimizamos a formato API para máxima compatibilidad con el intent de Android 👇
-    link: "https://wa.me/573138428637",
-  },*/
 ];
 
 interface AdBannerProps {
@@ -249,3 +239,5 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.9)",
   },
 });
+
+export default AdBanner;

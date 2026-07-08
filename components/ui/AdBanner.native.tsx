@@ -9,19 +9,62 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-
-export interface Ad {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  bgColor: string;
-  link?: string;
-}
+import {
+  fetchRemoteUpdateConfig,
+  type RemoteAdConfig,
+} from "../../lib/app-update";
+import { type Ad } from "./AdBannerBase";
 
 // Configuración de Google AdMob
 const ANDROID_BANNER_AD_UNIT_ID = "ca-app-pub-7292780272347587/6596188384";
 const FORCE_TEST_ADS = process.env.EXPO_PUBLIC_FORCE_TEST_ADS === "true";
+
+function extractAdsFromPayload(payload: unknown): RemoteAdConfig[] {
+  if (Array.isArray(payload)) {
+    return payload as RemoteAdConfig[];
+  }
+
+  if (payload && typeof payload === "object") {
+    const record = payload as Record<string, unknown>;
+
+    if (Array.isArray(record.ads)) {
+      return record.ads as RemoteAdConfig[];
+    }
+
+    if (record.android && typeof record.android === "object") {
+      const androidRecord = record.android as Record<string, unknown>;
+      if (Array.isArray(androidRecord.ads)) {
+        return androidRecord.ads as RemoteAdConfig[];
+      }
+    }
+
+    if (record.ios && typeof record.ios === "object") {
+      const iosRecord = record.ios as Record<string, unknown>;
+      if (Array.isArray(iosRecord.ads)) {
+        return iosRecord.ads as RemoteAdConfig[];
+      }
+    }
+  }
+
+  return [];
+}
+
+function normalizeAds(rawAds: RemoteAdConfig[] | undefined): Ad[] {
+  if (!Array.isArray(rawAds) || rawAds.length === 0) {
+    return [];
+  }
+
+  return rawAds
+    .filter((ad) => Boolean(ad?.title || ad?.description || ad?.link))
+    .map((ad, index) => ({
+      id: ad.id || `${index + 1}`,
+      title: ad.title?.trim() || "Anuncio",
+      description: ad.description?.trim() || "",
+      icon: ad.icon?.trim() || "📢",
+      bgColor: ad.bgColor?.trim() || "#2563eb",
+      link: ad.link?.trim(),
+    }));
+}
 
 // Tus 3 anuncios propios personalizados que se verán en Expo Go o Web
 const MY_CUSTOM_ADS: Ad[] = [
@@ -51,7 +94,6 @@ const MY_CUSTOM_ADS: Ad[] = [
     // 2. Optimizamos a formato API para máxima compatibilidad con el intent de Android 👇
     link: "https://wa.me/573138428637",
   },*/
-  
 ];
 
 interface AdBannerProps {
@@ -72,15 +114,39 @@ export function AdBanner({ onAdPress: _onAdPress }: AdBannerProps) {
   const [adError, setAdError] = React.useState<string | null>(null);
 
   // Estados para tus anuncios rotativos
+  const [ads, setAds] = React.useState<Ad[]>(MY_CUSTOM_ADS);
   const [adIndex, setAdIndex] = React.useState(0);
 
   // Efecto para cambiar tus anuncios cada 5 segundos (Siempre activo como fallback)
   React.useEffect(() => {
+    let isMounted = true;
+
+    void (async () => {
+      try {
+        const config = await fetchRemoteUpdateConfig();
+        if (!isMounted) {
+          return;
+        }
+
+        const remoteAds = normalizeAds(extractAdsFromPayload(config));
+        if (remoteAds.length > 0) {
+          setAds(remoteAds);
+          setAdIndex(0);
+        }
+      } catch {
+        // Se mantiene el fallback local si falla la carga remota.
+      }
+    })();
+
     const interval = setInterval(() => {
-      setAdIndex((prev) => (prev + 1) % MY_CUSTOM_ADS.length);
+      setAdIndex((prev) => (prev + 1) % Math.max(ads.length, 1));
     }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [ads.length]);
 
   // Efecto original de AdMob para el APK instalado
   React.useEffect(() => {
@@ -122,7 +188,7 @@ export function AdBanner({ onAdPress: _onAdPress }: AdBannerProps) {
     }
   };
 
-  const currentAd = MY_CUSTOM_ADS[adIndex];
+  const currentAd = ads[adIndex] ?? MY_CUSTOM_ADS[0];
 
   const renderCustomAd = () => (
     <Pressable

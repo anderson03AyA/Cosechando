@@ -1,13 +1,40 @@
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 
-type RemoteUpdateConfig = {
+const DEFAULT_UPDATE_CONFIG_URL =
+  "https://api.jsonbin.io/v3/b/6a4dc882da38895dfe3e3518";
+const LOCAL_UPDATE_CONFIG_PATH =
+  Platform.OS === "web" ? "/update-config.json" : "./update-config.json";
+
+export type RemoteAdConfig = {
+  id?: string;
+  title?: string;
+  description?: string;
+  icon?: string;
+  bgColor?: string;
+  link?: string;
+};
+
+export type PlatformUpdateConfig = {
   minimumVersion?: string;
   recommendedVersion?: string;
   forceUpdate?: boolean;
   title?: string;
   message?: string;
   updateUrl?: string;
+};
+
+export type RemoteUpdateConfig = {
+  minimumVersion?: string;
+  recommendedVersion?: string;
+  forceUpdate?: boolean;
+  title?: string;
+  message?: string;
+  updateUrl?: string;
+  ads?: RemoteAdConfig[];
+  adsUrl?: string;
+  android?: PlatformUpdateConfig;
+  ios?: PlatformUpdateConfig;
 };
 
 export type AppUpdatePrompt = {
@@ -19,13 +46,23 @@ export type AppUpdatePrompt = {
 };
 
 const UPDATE_CONFIG_URL =
-  process.env.EXPO_PUBLIC_UPDATE_CONFIG_URL?.trim() ?? "";
+  process.env.EXPO_PUBLIC_UPDATE_CONFIG_URL?.trim() ||
+  DEFAULT_UPDATE_CONFIG_URL;
 
 function getInstalledVersion() {
   return Constants.expoConfig?.version?.trim() || "0.0.0";
 }
 
 function getDefaultStoreUrl() {
+  if (Platform.OS === "ios") {
+    const bundleIdentifier =
+      Constants.expoConfig?.ios?.bundleIdentifier?.trim();
+
+    if (bundleIdentifier) {
+      return `https://apps.apple.com/app/${bundleIdentifier}`;
+    }
+  }
+
   if (Platform.OS === "android") {
     const packageName = Constants.expoConfig?.android?.package?.trim();
 
@@ -65,23 +102,62 @@ function compareVersions(left: string, right: string) {
   return 0;
 }
 
-async function fetchRemoteUpdateConfig(): Promise<RemoteUpdateConfig | null> {
-  if (!UPDATE_CONFIG_URL) {
+function unwrapJsonBinPayload(payload: unknown): RemoteUpdateConfig | null {
+  if (!payload || typeof payload !== "object") {
     return null;
   }
 
-  const response = await fetch(UPDATE_CONFIG_URL, {
-    headers: {
-      Accept: "application/json",
-      "Cache-Control": "no-cache",
-    },
-  });
+  const record = (payload as Record<string, unknown>).record;
 
-  if (!response.ok) {
-    throw new Error(`UPDATE_CONFIG_${response.status}`);
+  if (record && typeof record === "object") {
+    return record as RemoteUpdateConfig;
   }
 
-  return (await response.json()) as RemoteUpdateConfig;
+  return payload as RemoteUpdateConfig;
+}
+
+export async function fetchRemoteUpdateConfig(): Promise<RemoteUpdateConfig | null> {
+  const candidates = [UPDATE_CONFIG_URL, LOCAL_UPDATE_CONFIG_PATH].filter(
+    (value) => value.trim().length > 0,
+  );
+
+  for (const candidate of candidates) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    try {
+      const response = await fetch(candidate, {
+        headers: {
+          Accept: "application/json",
+        },
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        continue;
+      }
+
+      const payload = await response.json();
+      return unwrapJsonBinPayload(payload);
+    } catch {
+      continue;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  return null;
+}
+
+function getPlatformConfig(remoteConfig: RemoteUpdateConfig) {
+  const platformConfig =
+    Platform.OS === "ios" ? remoteConfig.ios : remoteConfig.android;
+
+  if (platformConfig) {
+    return platformConfig;
+  }
+
+  return remoteConfig;
 }
 
 export async function getAppUpdatePrompt(): Promise<AppUpdatePrompt | null> {
@@ -91,10 +167,14 @@ export async function getAppUpdatePrompt(): Promise<AppUpdatePrompt | null> {
     return null;
   }
 
+  const platformConfig = getPlatformConfig(remoteConfig);
   const installedVersion = getInstalledVersion();
-  const minimumVersion = remoteConfig.minimumVersion?.trim() ?? "";
-  const recommendedVersion = remoteConfig.recommendedVersion?.trim() ?? "";
-  const updateUrl = remoteConfig.updateUrl?.trim() || getDefaultStoreUrl();
+  const minimumVersion = platformConfig.minimumVersion?.trim() ?? "";
+  const recommendedVersion = platformConfig.recommendedVersion?.trim() ?? "";
+  const updateUrl =
+    platformConfig.updateUrl?.trim() ||
+    remoteConfig.updateUrl?.trim() ||
+    getDefaultStoreUrl();
 
   if (!updateUrl) {
     return null;
@@ -102,8 +182,12 @@ export async function getAppUpdatePrompt(): Promise<AppUpdatePrompt | null> {
 
   if (minimumVersion && compareVersions(installedVersion, minimumVersion) < 0) {
     return {
-      title: remoteConfig.title?.trim() || "Actualizacion requerida",
+      title:
+        platformConfig.title?.trim() ||
+        remoteConfig.title?.trim() ||
+        "Actualizacion requerida",
       message:
+        platformConfig.message?.trim() ||
         remoteConfig.message?.trim() ||
         "Hay una nueva version disponible y necesitas actualizar para seguir usando la app.",
       isRequired: true,
@@ -117,11 +201,17 @@ export async function getAppUpdatePrompt(): Promise<AppUpdatePrompt | null> {
     compareVersions(installedVersion, recommendedVersion) < 0
   ) {
     return {
-      title: remoteConfig.title?.trim() || "Actualizacion disponible",
+      title:
+        platformConfig.title?.trim() ||
+        remoteConfig.title?.trim() ||
+        "Actualizacion disponible",
       message:
+        platformConfig.message?.trim() ||
         remoteConfig.message?.trim() ||
         "Hay una nueva version disponible con mejoras y correcciones.",
-      isRequired: remoteConfig.forceUpdate === true,
+      isRequired:
+        platformConfig.forceUpdate === true ||
+        remoteConfig.forceUpdate === true,
       updateUrl,
       targetVersion: recommendedVersion,
     };

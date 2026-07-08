@@ -322,7 +322,7 @@ export default function TandasScreen() {
       <FlatList
         data={currentTandaEntries}
         keyExtractor={(item) => String(item.id)}
-        style={styles.list}
+        style={styles.list }
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
           <View>
@@ -719,6 +719,7 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+    paddingHorizontal: 10,
   },
   listContent: {
     paddingBottom: 28,

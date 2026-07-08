@@ -1,0 +1,26 @@
+{
+  "minimumVersion": "1.0.0",
+  "recommendedVersion": "1.0.0",
+  "forceUpdate": false,
+  "title": "Actualizacion disponible",
+  "message": "Hay una nueva version disponible.",
+  "updateUrl": "https://play.google.com/store/apps/details?id=com.andersonsolarte.cosechando",
+  "ads": [
+    {
+      "id": "1",
+      "title": "Angie Nails Studio",
+      "description": "Uñas perfectas y accesorios exclusivos",
+      "icon": "💅",
+      "bgColor": "#ffc0cb",
+      "link": "https://anderson03aya.github.io/Angie_Nails_Studio/"
+    },
+    {
+      "id": "2",
+      "title": "Quieres tu App o web?",
+      "description": "Diseñamos paginas web y apps para tu negocio",
+      "icon": "📊",
+      "bgColor": "#2563eb",
+      "link": "https://wa.me/573125023912"
+    }
+  ]
+}

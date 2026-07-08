@@ -117,7 +117,7 @@ export default function TandaAlertScreen() {
   const handleConfirmReset = React.useCallback(() => {
     Alert.alert(
       "Reiniciar contador",
-      "Se borrara el conteo actual y el historial reciente de tandas. Esta accion no se puede deshacer.",
+      "Se borrara el conteo actual y el historial reciente de tandas.",
       [
         {
           text: "Cancelar",

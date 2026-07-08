@@ -83,15 +83,15 @@ export default function SavedHarvestsScreen() {
   const handleDeleteHarvest = React.useCallback(
     (harvest: SavedHarvest) => {
       Alert.alert(
-        "Eliminar cosecha",
-        `Se eliminara la cosecha guardada ${harvest.name}. Esta accion no se puede deshacer.`,
+        "⚠️Eliminar cosecha",
+        `Esta acción eliminará permanentemente la cosecha guardada “${harvest.name}”. No se podrá recuperar.`,
         [
           {
             text: "Cancelar",
             style: "cancel",
           },
           {
-            text: "Eliminar",
+            text: "Sí, eliminar",
             style: "destructive",
             onPress: () => {
               void deleteSavedHarvest(harvest.id).then(loadData);
@@ -187,7 +187,7 @@ export default function SavedHarvestsScreen() {
               </Pressable>
 
               <Pressable
-                style={[styles.secondaryButton, { borderColor }]}
+                style={[styles.secondaryButton, { borderColor: "red" }]}
                 onPress={() => handleDeleteHarvest(item)}
               >
                 <Text

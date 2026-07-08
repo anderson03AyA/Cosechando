@@ -9,7 +9,7 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_FORCE_TEST_ADS": "true",
-        "EXPO_PUBLIC_UPDATE_CONFIG_URL": "https://raw.githubusercontent.com/anderson03AyA/update-config.json/main/update-config.json"
+        "EXPO_PUBLIC_UPDATE_CONFIG_URL": "https://api.jsonbin.io/v3/b/6a4dc882da38895dfe3e3518"
       },
       "android": {
         "buildType": "apk"
@@ -19,7 +19,7 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_FORCE_TEST_ADS": "true",
-        "EXPO_PUBLIC_UPDATE_CONFIG_URL": "https://raw.githubusercontent.com/anderson03AyA/update-config.json/main/update-config.json"
+        "EXPO_PUBLIC_UPDATE_CONFIG_URL": "https://api.jsonbin.io/v3/b/6a4dc882da38895dfe3e3518"
       },
       "android": {
         "buildType": "apk"
@@ -29,7 +29,7 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_FORCE_TEST_ADS": "false",
-        "EXPO_PUBLIC_UPDATE_CONFIG_URL": "https://raw.githubusercontent.com/anderson03AyA/update-config.json/main/update-config.json"
+        "EXPO_PUBLIC_UPDATE_CONFIG_URL": "https://api.jsonbin.io/v3/b/6a4dc882da38895dfe3e3518"
       },
       "android": {
         "buildType": "apk"
@@ -39,7 +39,7 @@
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_FORCE_TEST_ADS": "false",
-        "EXPO_PUBLIC_UPDATE_CONFIG_URL": "https://raw.githubusercontent.com/anderson03AyA/update-config.json/main/update-config.json"
+        "EXPO_PUBLIC_UPDATE_CONFIG_URL": "https://api.jsonbin.io/v3/b/6a4dc882da38895dfe3e3518"
       },
       "android": {
         "buildType": "app-bundle"
