@@ -47,6 +47,7 @@ app-example
 # generated native folders
 /ios
 /android/*
+!/android/build.gradle
 !/android/app/
 !/android/app/build.gradle
 !/android/gradle.properties
